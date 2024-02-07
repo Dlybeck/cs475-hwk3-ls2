@@ -8,5 +8,8 @@
 #define INDENT "    "
 
 // TODO: Function declarations here for ls2
+void runls(char path[], int indents);
+
+
 
 #endif
