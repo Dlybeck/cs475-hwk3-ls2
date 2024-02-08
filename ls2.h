@@ -10,7 +10,11 @@
 // TODO: Function declarations here for ls2
 void runls(char path[], int indents);
 
-void runls2(char path[], char match[], stack_t* stack, int indents);
+void runls2 (char* path, char* match, stack_t* stack, int indents);
+
+void printreversestack(stack_t* s);
+
+char* PathName(char* path, char* fileName);
 
 
 

@@ -144,4 +144,5 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
             free(fullPath);
         }
     }
+    closedir(dir);
 }
