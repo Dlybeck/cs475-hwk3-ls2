@@ -16,24 +16,9 @@ int main(int argc, char* argv[]) {
 	}
 	if(argc == 3){
 		//Run the second mode
-		//runls2(argv[1], argv[2], stack, 0);
+		runls2(argv[1], argv[2], stack, 0);
 	}
 
 	freestack(stack);
-
-
-
-	/*// stack stores the lines to print out
-	stack_t *s = initstack();	
-
-	push(s, "Hello1");
-	push(s, "Hello2");
-	push(s, "Hello3");
-
-	// print stack
-	printstack(s);
-
-	// free up stack
-	freestack(s);*/
 	return 0;
 }

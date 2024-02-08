@@ -10,12 +10,29 @@
 char* PathName(char* path, char* fileName){
     int len = strlen(path) + strlen(fileName) + 1 + 1; //One for the / the other for the \0 at the end of a string
     char* newName = (char*) malloc(len);
-    memset(newName, 0, len);
     strcat(newName, path);
     strcat(newName, "/");
     strcat(newName, fileName);
     return newName;
 }
+
+void printreversestack(stack_t* s) {
+    stack_t *reverse = initstack();
+
+    stacknode_t *current = s->top;
+    while (current != NULL) {
+        push(reverse, current->data);
+        current = current->next;
+    }
+
+    stacknode_t *newNode = reverse->top;
+    while (newNode != NULL) {
+        printf("%s", (char*) newNode->data);
+        newNode = newNode->next;
+    }
+    freestack(reverse);
+}
+
 
 //Mode 1. No Exact match
 void runls (char path[], int indents){
@@ -57,7 +74,7 @@ void runls (char path[], int indents){
 }
 
 //mode 2
-/*void runls2 (char* path, char* match, stack_t* stack, int indents){
+void runls2 (char* path, char* match, stack_t* stack, int indents){
     DIR* dir;
     dir = opendir(path);
     if(dir == NULL){
@@ -79,39 +96,52 @@ void runls (char path[], int indents){
             if(S_ISREG(fileInfo.st_mode)){
                 //if it matches what is wanted
                 if(strcmp(name, match) == 0){
-                    long size = fileInfo.st_size;
+                    long int size = fileInfo.st_size;
 
-                    //Create the properly indented file name
-                    char* indents;
-                    for(int i = 0; i < indents; i++) strcat(indents, INDENT);
-                    char* output = sprintf("(%ld) bytes\n", size);
-                    output = strcat(indents, output);
-                    push(stack, output);
+                    // Allocate memory for formatted string
+                    char sizeStr[255]; // Just set to max chars for filename?
+
+                    // Format the size string
+                    int num_chars = snprintf(sizeStr, sizeof(sizeStr), "(%ld) bytes\n", size);
+
+                    // Calculate length
+                    int len = (strlen(INDENT) * indents) + strlen(name) + num_chars + 1;
+
+                    // Allocate memory for fullEntry
+                    char *fullEntry = (char *)malloc(len);
+
+                    for(int i = 0; i < indents; i++) strcat(fullEntry, INDENT);
+                    strcat(fullEntry, name);
+                    strcat(fullEntry, sizeStr);
+                    push(stack, fullEntry);
 
                     //Print everything added so far
-                    printstack(stack);
+                    printreversestack(stack);
 
                     //Empty the stack
-                    while(stack->size > 0){
+                    while(stack->size){
                         pop(stack);
                     }
+                    free(fullEntry);  //Don't need anymore since stack is empty
                 }
             }
             //it is a directory
             else{
                 //Create the properly indented file name
-                char* spaces;
-                for(int i = 0; i < indents; i++) strcat(spaces, INDENT);
-                char* output;
-                sprintf(output, "/ (directory)\n");
-                output = strcat(indents, output);
-                push(stack, output);
-                indents++;
+                int len = (strlen(INDENT)*indents) + strlen(name) + strlen("/ (directory)\n") + 1;
+                char* fullEntry = (char*) malloc(len);
+                for(int i = 0; i < indents; i++) strcat(fullEntry, INDENT);
+                strcat(fullEntry, name);
+                strcat(fullEntry, "/ (directory)\n");
+                push(stack, fullEntry);
 
-                push(stack, output);
+                indents++; //increment indents before recursion
                 runls2(fullPath, match, stack, indents);
+                indents--;  //decrement for when returning back to earlier folders
                 pop(stack);
+                free(fullEntry);
             }
+            free(fullPath);
         }
     }
-}*/
+}
