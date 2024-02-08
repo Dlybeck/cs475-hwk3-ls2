@@ -100,14 +100,9 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
 
                     // Allocate memory for formatted string
                     char sizeStr[255]; // Just set to max chars for filename?
-
                     // Format the size string
                     int num_chars = snprintf(sizeStr, sizeof(sizeStr), "(%ld) bytes\n", size);
-
-                    // Calculate length
                     int len = (strlen(INDENT) * indents) + strlen(name) + num_chars + 1;
-
-                    // Allocate memory for fullEntry
                     char *fullEntry = (char *)malloc(len);
 
                     for(int i = 0; i < indents; i++) strcat(fullEntry, INDENT);
