@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include "ls2.h"
 
-
 char* PathName(char* path, char* fileName){
     int len = strlen(path) + strlen(fileName) + 1 + 1; //One for the / the other for the \0 at the end of a string
     char* newName = (char*) malloc(len);
@@ -33,7 +32,6 @@ void printreversestack(stack_t* s) {
     }
     freestack(reverse);
 }
-
 
 //Mode 1. No Exact match
 void runls (char path[], int indents){
@@ -67,7 +65,6 @@ void runls (char path[], int indents){
                 printf("/ (directory)\n");
                 runls(fullPath, indents + 1);
             }
-            
             free(fullPath);
         }
     }
@@ -118,9 +115,7 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
                     while (stack->top != NULL) {
                         pop(stack); //Empty the stack
                     }
-
-                    //free(fullEntry);  //CAUSES DOUBLE FREEING ERROR WHEN HERE BUT LEAKS WHEN NOT
-
+                    free(fullEntry);  //BUG 1
                 }
             }
             //it is a directory
@@ -139,10 +134,16 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
                 indents--;  //decrement for when returning back to earlier folders
                 pop(stack); //In case the file was empty
 
-                //free(fullEntry);  //CAUSES DOUBLE FREEING ERROR WHEN HERE BUT LEAKS WHEN NOT
+                free(fullEntry);  //BUG 2
             }
-
             free(fullPath);
+            /********************
+             * 1 & 2 Commented:     Code runs with 5 small errors, and 1939 lost bytes
+             * Only 1:              Code doesn't run. Has 2 double freeing errors and 5 small errors. 1939 lost bytes 
+             * Only 2:              Code doesn't run. Has 2 double freeing errors. NO lost bytes
+             *                          Fixes lost bytes?
+             * None Commented:      Code doesn't run. Has 2 double freeing errors and 2 small errors. NO lost bytes
+            ********************/
         }
     }
     closedir(dir);
