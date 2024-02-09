@@ -18,14 +18,14 @@ char* PathName(char* path, char* fileName){
 
 void printreversestack(stack_t* s) {
     stack_t *reverse = initstack();
-
     stacknode_t *current = s->top;
+    //"Flip" the stack
     while (current != NULL) {
         push(reverse, current->data);
         current = current->next;
     }
-
     stacknode_t *newNode = reverse->top;
+    //Print out the reversed stack
     while (newNode != NULL) {
         printf("%s", (char*) newNode->data);
         newNode = newNode->next;
@@ -58,7 +58,7 @@ void runls (char path[], int indents){
             //if it is a file
             if(S_ISREG(fileInfo.st_mode)){
                 long size = fileInfo.st_size;
-                printf("(%ld) bytes\n", size);
+                printf("(%ld bytes)\n", size);
             }
             //if it is a folder
             else{
@@ -71,7 +71,7 @@ void runls (char path[], int indents){
     closedir(dir);
 }
 
-//mode 2
+//mode 2 w/ exact match
 void runls2 (char* path, char* match, stack_t* stack, int indents){
     DIR* dir;
     dir = opendir(path);
@@ -99,23 +99,23 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
                     // Allocate memory for formatted string
                     char sizeStr[255]; // Just set to max chars for filename?
                     // Format the size string
-                    int num_chars = snprintf(sizeStr, sizeof(sizeStr), "(%ld) bytes\n", size);
+                    int num_chars = snprintf(sizeStr, sizeof(sizeStr), "(%ld bytes)\n", size);
                     int len = (strlen(INDENT) * indents) + strlen(name) + num_chars + 1;
                     char *fullEntry = (char *)malloc(len);
                     memset(fullEntry, 0, len);
 
-                    for(int i = 0; i < indents; i++) strcat(fullEntry, INDENT);
+                    for(int i = 0; i < indents; i++) strcat(fullEntry, INDENT); //Add the proper # of indents to the name
                     strcat(fullEntry, name);
                     strcat(fullEntry, sizeStr);
-                    push(stack, fullEntry);
+                    push(stack, fullEntry); //Add the file name to the stack
 
                     //Print everything added so far
                     printreversestack(stack);
 
-                    while (stack->top != NULL) {
-                        pop(stack); //Empty the stack
+                    //Empty the stack
+                    while (stack->size > 0) {
+                         pop(stack);  
                     }
-                    free(fullEntry);  //BUG 1
                 }
             }
             //it is a directory
@@ -124,26 +124,18 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
                 int len = (strlen(INDENT)*indents) + strlen(name) + strlen("/ (directory)\n") + 1;
                 char* fullEntry = (char*) malloc(len);
                 memset(fullEntry, 0, len);
-                for(int i = 0; i < indents; i++) strcat(fullEntry, INDENT);
+
+                for(int i = 0; i < indents; i++) strcat(fullEntry, INDENT); //Add the proper # of indents to the name
                 strcat(fullEntry, name);
                 strcat(fullEntry, "/ (directory)\n");
-                push(stack, fullEntry);
+                push(stack, fullEntry); //Add the directory to the stack
 
                 indents++; //increment indents before recursion
                 runls2(fullPath, match, stack, indents);
                 indents--;  //decrement for when returning back to earlier folders
-                pop(stack); //In case the file was empty
-
-                free(fullEntry);  //BUG 2
+                free(pop(stack)); //In case the directory was empty, backtrack (Otherwise this does nothing)
             }
             free(fullPath);
-            /********************
-             * 1 & 2 Commented:     Code runs with 5 small errors, and 1939 lost bytes
-             * Only 1:              Code doesn't run. Has 2 double freeing errors and 5 small errors. 1939 lost bytes 
-             * Only 2:              Code doesn't run. Has 2 double freeing errors. NO lost bytes
-             *                          Fixes lost bytes?
-             * None Commented:      Code doesn't run. Has 2 double freeing errors and 2 small errors. NO lost bytes
-            ********************/
         }
     }
     closedir(dir);
