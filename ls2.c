@@ -10,6 +10,7 @@
 char* PathName(char* path, char* fileName){
     int len = strlen(path) + strlen(fileName) + 1 + 1; //One for the / the other for the \0 at the end of a string
     char* newName = (char*) malloc(len);
+    memset(newName, 0, len);
     strcat(newName, path);
     strcat(newName, "/");
     strcat(newName, fileName);
@@ -30,9 +31,7 @@ void printreversestack(stack_t* s) {
         printf("%s", (char*) newNode->data);
         newNode = newNode->next;
     }
-    printf("1");
     freestack(reverse);
-    printf("1\n");
 }
 
 
@@ -69,9 +68,7 @@ void runls (char path[], int indents){
                 runls(fullPath, indents + 1);
             }
             
-            printf("2");
             free(fullPath);
-            printf("2\n");
         }
     }
     closedir(dir);
@@ -108,6 +105,7 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
                     int num_chars = snprintf(sizeStr, sizeof(sizeStr), "(%ld) bytes\n", size);
                     int len = (strlen(INDENT) * indents) + strlen(name) + num_chars + 1;
                     char *fullEntry = (char *)malloc(len);
+                    memset(fullEntry, 0, len);
 
                     for(int i = 0; i < indents; i++) strcat(fullEntry, INDENT);
                     strcat(fullEntry, name);
@@ -117,20 +115,12 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
                     //Print everything added so far
                     printreversestack(stack);
 
-                    //Empty the stack
-                    /*while(stack->size > 0){
-                        printf("loop");
-                        pop(stack);
-                        printf("Done loop\n");
-                    }*/
                     while (stack->top != NULL) {
-                        printf("now here");
                         pop(stack); //Empty the stack
                     }
 
-                    printf("3");
-                    free(fullEntry);  //Don't need anymore since stack is empty
-                    printf("3\n");
+                    //free(fullEntry);  //CAUSES DOUBLE FREEING ERROR WHEN HERE BUT LEAKS WHEN NOT
+
                 }
             }
             //it is a directory
@@ -138,23 +128,21 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
                 //Create the properly indented file name
                 int len = (strlen(INDENT)*indents) + strlen(name) + strlen("/ (directory)\n") + 1;
                 char* fullEntry = (char*) malloc(len);
+                memset(fullEntry, 0, len);
                 for(int i = 0; i < indents; i++) strcat(fullEntry, INDENT);
                 strcat(fullEntry, name);
                 strcat(fullEntry, "/ (directory)\n");
                 push(stack, fullEntry);
 
                 indents++; //increment indents before recursion
-                printf("%s\n", fullPath);
                 runls2(fullPath, match, stack, indents);
                 indents--;  //decrement for when returning back to earlier folders
-                pop(stack);
-                printf("4");
-                free(fullEntry);
-                printf("4\n");
+                pop(stack); //In case the file was empty
+
+                //free(fullEntry);  //CAUSES DOUBLE FREEING ERROR WHEN HERE BUT LEAKS WHEN NOT
             }
-            printf("5");
+
             free(fullPath);
-            printf("5\n");
         }
     }
     closedir(dir);
