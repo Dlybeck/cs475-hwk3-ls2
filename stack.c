@@ -24,7 +24,9 @@ void* pop(stack_t* s) {
     void* oldData = top->data;  // save the current top for return
     s->top = s->top->next;
     s->size--;
+    printf("7");
     free(top);  // free up memory
+    printf("7\n");
     return oldData;
   }
   return NULL;
@@ -50,9 +52,13 @@ void push(stack_t* s, void* item) {
 void freestack(stack_t* s) {
   while (s->size) {
     void* ret  = pop(s);
+    printf("8");
     free(ret);
+    printf("8\n");
   }
+  printf("9");
   free(s);
+  printf("9\n");
 }
 
 /**

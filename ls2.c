@@ -30,7 +30,9 @@ void printreversestack(stack_t* s) {
         printf("%s", (char*) newNode->data);
         newNode = newNode->next;
     }
+    printf("1");
     freestack(reverse);
+    printf("1\n");
 }
 
 
@@ -39,7 +41,7 @@ void runls (char path[], int indents){
     DIR* dir;
     dir = opendir(path);
     if(dir == NULL){
-        printf("This path does not exist");
+        printf("The path %s does not exist", path);
         return;
     }
 
@@ -67,7 +69,9 @@ void runls (char path[], int indents){
                 runls(fullPath, indents + 1);
             }
             
+            printf("2");
             free(fullPath);
+            printf("2\n");
         }
     }
     closedir(dir);
@@ -78,7 +82,7 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
     DIR* dir;
     dir = opendir(path);
     if(dir == NULL){
-        printf("This path does not exist");
+        printf("The path %s does not exist", path);
         return;
     }
 
@@ -114,10 +118,19 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
                     printreversestack(stack);
 
                     //Empty the stack
-                    while(stack->size){
+                    /*while(stack->size > 0){
+                        printf("loop");
                         pop(stack);
+                        printf("Done loop\n");
+                    }*/
+                    while (stack->top != NULL) {
+                        printf("now here");
+                        pop(stack); //Empty the stack
                     }
+
+                    printf("3");
                     free(fullEntry);  //Don't need anymore since stack is empty
+                    printf("3\n");
                 }
             }
             //it is a directory
@@ -131,12 +144,17 @@ void runls2 (char* path, char* match, stack_t* stack, int indents){
                 push(stack, fullEntry);
 
                 indents++; //increment indents before recursion
+                printf("%s\n", fullPath);
                 runls2(fullPath, match, stack, indents);
                 indents--;  //decrement for when returning back to earlier folders
                 pop(stack);
+                printf("4");
                 free(fullEntry);
+                printf("4\n");
             }
+            printf("5");
             free(fullPath);
+            printf("5\n");
         }
     }
     closedir(dir);

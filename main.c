@@ -19,6 +19,8 @@ int main(int argc, char* argv[]) {
 		runls2(argv[1], argv[2], stack, 0);
 	}
 
+	printf("6");
 	freestack(stack);
+	printf("6\n");
 	return 0;
 }
